@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>История транзакций</title>
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+<main>
+    <h1>Страница транзакций</h1>
+    <h2>История транзакций ингредиентов</h2>
+
+    <section>
+        <!-- Форма для выбора диапазона дат -->
+        <form action="/transaction_history" method="post">
+            <div class="date-input">
+                <label for="start_date">Дата начала:</label>
+                <input type="date" id="start_date" class="date_input" name="start_date">
+                <label for="end_date">Дата окончания:</label>
+                <input type="date" id="end_date" class="date_input" name="end_date">
+            </div>
+            <label for="type">Тип транзакции:</label>
+                <select id="type" name="type">
+                    <option value="">Все</option>
+                    <option value="приход">Приход</option>
+                    <option value="расход">Расход</option>
+                </select>
+            <button type="submit" class="button">Показать историю</button>
+        </form>
+
+        {% if results %}
+            <h3>Список транзакций:</h3>
+            <table border="1">
+                <tr>
+                    <th>Ингредиент</th>
+                    <th>Дата</th>
+                    <th>Тип</th>
+                    <th>Количество</th>
+                    <th>Причина</th>
+                </tr>
+                {% for row in results %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <!-- Кнопка для скачивания отчета -->
+            <form action="/download_transaction_history" method="post">
+                <button type="submit" class="button-accept">Скачать отчет</button>
+            </form>
+        {% endif %}
+
+    </section>
+
+    <h2>История транзакций хоз.товаров</h2>
+    <section>
+        <!-- Форма для выбора диапазона дат -->
+        <form action="/transaction_history_houseitems" method="post">
+            <div class="date-input">
+                <label for="start_date">Дата начала:</label>
+                <input type="date" id="start_date" name="start_date">
+                <label for="end_date">Дата окончания:</label>
+                <input type="date" id="end_date" name="end_date">
+            </div>
+            <label for="type">Тип транзакции:</label>
+                <select id="type" name="type">
+                    <option value="">Все</option>
+                    <option value="приход">Приход</option>
+                    <option value="расход">Расход</option>
+                </select>
+            <button type="submit" class="button">Показать историю</button>
+        </form>
+
+        {% if data %}
+            <h3>Список транзакций:</h3>
+            <table border="1">
+                <tr>
+                    <th>Хоз.товар</th>
+                    <th>Дата</th>
+                    <th>Тип</th>
+                    <th>Количество</th>
+                    <th>Причина</th>
+                </tr>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <!-- Кнопка для скачивания отчета -->
+            <form action="/download_houseitems_transaction_history" method="post">
+                <button type="submit" class="button-accept">Скачать отчет</button>
+            </form>
+        {% endif %}
+    </section>
+</main>
+
+
+</body>
+</html>

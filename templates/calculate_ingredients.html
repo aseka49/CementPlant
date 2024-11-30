@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Расчет ингредиентов</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <main>
+    <div class="container">
+        <header>
+            <h1>Расчет ингредиентов для комплекса блюд</h1>
+            <h2>Добавьте блюда и их количество для расчета необходимых ингредиентов.</h2>
+        </header>
+
+        <form action="/calculate_ingredients" method="post" id="ingredientsForm" class="form">
+        <div class="date-input">
+            <label for="calculation_date">Дата расчета:</label>
+            <input type="date" name="calculation_date" required>
+        </div>
+        <div id="recipeInputs">
+            <div class="recipe-input">
+                <label for="recipe">Блюдо:</label>
+                <select name="recipes[]" required>
+                    <option value="" selected disabled>Выберите рецепт</option>
+                    {% for recipe in recipes %}
+                    <option value="{{ recipe }}">{{ recipe }}</option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <label for="quantity">Количество:</label>
+                <input type="number" name="quantities[]" min="1" required>
+                <br><br>
+                <button type="button" class="button-remove" onclick="removeRecipeInput(this)">Удалить</button>
+                <br><br>
+            </div>
+        </div>
+        <div class="actions">
+            <button type="button" class="button" onclick="addRecipeInput()">Добавить блюдо</button><br>
+            <button type="submit" class="button-accept">Рассчитать</button>
+        </div>
+    </form>
+
+
+    </div>
+
+    <script>
+    function addRecipeInput() {
+        const newInput = document.createElement('div');
+        newInput.classList.add('recipe-input');
+        newInput.innerHTML = `
+            <label for="recipe">Блюдо:</label>
+            <select name="recipes[]" required>
+                <option value="" selected disabled>Выберите рецепт</option>
+                {% for recipe in recipes %}
+                <option value="{{ recipe }}">{{ recipe }}</option>
+                {% endfor %}
+            </select>
+            <br><br>
+            <label for="quantity">Количество:</label>
+            <input type="number" name="quantities[]" min="1" required>
+            <br><br>
+            <button type="button" class="button-remove" onclick="removeRecipeInput(this)">Удалить</button>
+            <br><br>
+        `;
+        document.getElementById('recipeInputs').appendChild(newInput);
+    }
+
+    function removeRecipeInput(button) {
+        const inputDiv = button.parentElement;
+        inputDiv.remove();
+    }
+    </script>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </main>
+</body>
+</html>

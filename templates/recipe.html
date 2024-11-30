@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Управление рецептами</title>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <main>
+    <h1>Управление рецептами</h1>
+
+    <form method="POST" action="/recipe">
+        <!-- Выбор рецепта -->
+        <div class="form-group">
+            <label for="recipe_name">Выберите рецепт:</label>
+            <select name="recipe_name" id="recipe_name" onchange="syncRecipeSelection()" required>
+                <option value="" disabled {% if not selected_recipe %}selected{% endif %}>Выберите рецепт</option>
+                {% for recipe in recipes %}
+                    <option value="{{ recipe[0] }}" {% if selected_recipe == recipe[0] %}selected{% endif %}>{{ recipe[0] }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="button-recipe" name="show_recipe">Показать ингредиенты</button>
+        </div>
+
+        <br>
+
+        <!-- Отображение ингредиентов рецепта -->
+        {% if ingredients %}
+            <h2>Ингредиенты для рецепта: {{ selected_recipe }}</h2>
+            <ul>
+                {% for ingredient in ingredients %}
+                    <li>{{ ingredient[0] }}: {{ ingredient[1] }} {{ ingredient[2] }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <hr>
+
+        <!-- Редактирование рецепта -->
+        <h2>Редактирование рецепта</h2>
+
+        <!-- Выбор рецепта для редактирования -->
+        <div class="form-group">
+            <label for="edit_recipe_name">Редактируемый рецепт:</label>
+            <select name="recipe_name" id="edit_recipe_name" required>
+                <option value="" disabled {% if not selected_recipe %}selected{% endif %}>Выберите рецепт</option>
+                {% for recipe in recipes %}
+                    <option value="{{ recipe[0] }}" {% if selected_recipe == recipe[0] %}selected{% endif %}>{{ recipe[0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <br>
+
+        <!-- Новое название рецепта -->
+        <div class="form-group">
+            <label for="new_recipe_name">Новое название рецепта (если требуется):</label>
+            <input type="text" name="new_recipe_name" id="new_recipe_name">
+        </div>
+
+        <br>
+
+        <!-- Добавление или обновление ингредиентов -->
+        <h3>Добавить или обновить ингредиенты</h3>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Ингредиент</th>
+                    <th>Количество</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody id="updateIngredientsTableBody">
+                <tr>
+                    <td>
+                        <input type="text" name="updated_ingredients[]" placeholder="Название ингредиента" >
+                    </td>
+                    <td>
+                        <input type="number" name="updated_amount[]" min="0.001" step="0.001" >
+                    </td>
+                    <td>
+                        <button type="button" class="button-remove" onclick="removeRow(this)">Удалить</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="button" type="button" onclick="addIngredientRow()">Добавить ингредиент</button>
+
+        <br><br>
+
+        <!-- Удаление ингредиентов -->
+        <h3>Удалить ингредиенты</h3>
+        <div id="remove_ingredients">
+            <div class="form-group">
+                <label for="removed_ingredient">Выберите ингредиент для удаления:</label>
+                <select name="removed_ingredient[]" class="short-version-select">
+                    <option value="" disabled selected>Выберите ингредиент</option>
+                    {% if ingredients %}
+                        {% for ingredient in ingredients %}
+                            <option value="{{ ingredient[0] }}">{{ ingredient[0] }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                <button type="button" class="button-remove" onclick="removeIngredientInput(this)">Удалить</button>
+            </div>
+        </div>
+        <button type="button" class="button" onclick="addRemoveIngredient()">Добавить ингредиент</button>
+
+        <br><br>
+
+        <!-- Кнопка для обновления рецепта -->
+        <div>
+            <button type="submit" class="button-accept" name="update_recipe">Обновить рецепт</button>
+        </div>
+
+        <br><br>
+
+
+    </form>
+
+           {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div>
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+    </main>
+    <script>
+        // Синхронизация выбора рецепта между двумя выпадающими списками
+        function syncRecipeSelection() {
+            const recipeName = document.getElementById('recipe_name').value;
+            const editRecipeName = document.getElementById('edit_recipe_name');
+            if (editRecipeName) {
+                editRecipeName.value = recipeName; // Устанавливаем значение второго списка в выбранное
+            }
+        }
+
+        // Добавление новой строки для ингредиентов
+        function addIngredientRow() {
+            const tableBody = document.getElementById('updateIngredientsTableBody');
+
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <input type="text" name="updated_ingredients[]" placeholder="Название ингредиента" >
+                </td>
+                <td>
+                    <input type="number" name="updated_amount[]" min="0.001" step="0.001" >
+                </td>
+                <td>
+                    <button type="button" class="button-remove" onclick="removeRow(this)">Удалить</button>
+                </td>
+            `;
+
+            tableBody.appendChild(newRow);
+        }
+
+        // Удаление строки ингредиента
+        function removeRow(button) {
+            const row = button.parentElement.parentElement; // Находим строку таблицы
+            row.remove(); // Удаляем её
+        }
+
+        // Добавление нового блока для удаления ингредиентов
+        function addRemoveIngredient() {
+            const removeIngredientsDiv = document.getElementById('remove_ingredients');
+
+            // Создание нового блока с выпадающим списком
+            const div = document.createElement('div');
+            div.classList.add('remove-ingredient-block'); // Класс для управления стилями, если понадобится
+
+            div.innerHTML = `
+                <div class="form-group">
+                    <label for="removed_ingredient">Выберите ингредиент для удаления:</label>
+                    <select name="removed_ingredient[]" class="short-version-select" >
+                        <option value="" disabled selected>Выберите ингредиент</option>
+                        {% if ingredients %}
+                            {% for ingredient in ingredients %}
+                                <option value="{{ ingredient[0] }}">{{ ingredient[0] }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                    <button type="button" class="button-remove" onclick="removeIngredientInput(this)">Удалить</button>
+                </div>
+            `;
+
+            removeIngredientsDiv.appendChild(div);
+        }
+
+        // Удаление блока для удаления ингредиента
+        function removeIngredientInput(button) {
+            const blockToRemove = button.parentElement; // Находим родительский блок
+            blockToRemove.remove(); // Удаляем его из DOM
+        }
+    </script>
+</body>
+
+</html>

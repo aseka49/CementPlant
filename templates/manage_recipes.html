@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Управление рецептами</title>
+    <script>
+      // Переключение видимости таблицы рецептов
+        function toggleTable() {
+            const table = document.getElementById('recipesTable');
+            table.style.display = table.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function refreshPage() {
+            location.reload();
+        }
+
+        // Добавить новую строку для ингредиента
+        function addIngredient() {
+            const table = document.getElementById('ingredientsTableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <select name="ingredients[]" required>
+                        <option value="" selected disabled>Выберите ингредиент</option>
+                        {% for ingredient in ingredients %}
+                            <option value="{{ ingredient[0] }}">{{ ingredient[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="quantities[]" min="0.001" step="0.001" required>
+                </td>
+                <td>
+                    <button type="button" class="button-remove" onclick="removeRow(this)">Удалить</button>
+                </td>
+            `;
+            table.appendChild(newRow);
+        }
+
+        // Удалить строку ингредиента
+        function removeRow(button) {
+            button.closest('tr').remove();
+        }
+
+    </script>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <main>
+    <!-- Форма добавления нового рецепта -->
+    <h1>Страница рецептов</h1>
+   <h2>Добавить новый рецепт</h2>
+    <form action="/new_recipe" method="post" id="recipeForm">
+        <label for="recipe_name">Название рецепта:</label>
+        <input type="text" id="recipe_name" name="recipe_name" required><br><br>
+
+        <label for="category_name">Категория:</label>
+        <select id="category_name" name="category_name" required>
+            <option value="" selected disabled>Выберите категорию</option>
+            {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Ингредиент</th>
+                    <th>Количество</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody id="ingredientsTableBody">
+                <tr>
+                    <td>
+                        <select name="ingredients[]" required>
+                            <option value="" selected disabled>Выберите ингредиент</option>
+                            {% for ingredient in ingredients %}
+                                <option value="{{ ingredient[0] }}">{{ ingredient[0] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="quantities[]" min="0.001" step="0.001" required>
+                    </td>
+                    <td>
+                        <button type="button" class="button-remove" onclick="removeRow(this)">Удалить</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="button" type="button" onclick="addIngredient()">Добавить ингредиент</button><br><br>
+        <button class="button-accept" type="submit">Добавить рецепт</button>
+    </form>
+
+
+    <!-- Форма удаления рецепта -->
+    <h2>Удалить рецепт</h2>
+    <form action="/delete_recipe" method="post">
+        <label for="recipe_name">Выберите рецепт:</label>
+        <select name="recipe_name" required>
+            <option value="" selected disabled>Выберите рецепт</option>
+            {% for recipe in recipes %}
+                <option value="{{ recipe[0] }}">{{ recipe[0] }}</option>
+            {% endfor %}
+        </select><br><br>
+        <button class="button" type="submit">Удалить рецепт</button>
+    </form>
+
+    <!-- Список всех рецептов -->
+    <div class="table-container">
+    <h1>Список всех рецептов</h1>
+        <form method="post">
+            <div class="button-group">
+                    <button type="button" class="button" onclick="toggleTable()">Открыть/Закрыть таблицу</button>
+                    <button type="submit" class="button" onclick="refreshPage()">Обновить</button>
+                    <a class="button" href="/recipe" >Редактирование рецепта</a>
+            </div>
+
+            <div class="sort-container">
+                <label for="sort">Сортировка по:</label>
+                <select id="sort" name="sort">
+                    <option value="name" {% if current_sort =='name' %}selected{% endif %}>По названию рецепта</option>
+                    <option value="category" {% if current_sort =='category' %}selected{% endif %}>По категории</option>
+                </select>
+            </div>
+
+        </form>
+        <div id="recipesTable" style="display: none;">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Название рецепта</th>
+                        <th>Категория</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for recipe in recipes %}
+                        <tr>
+                            <td>{{ recipe[0] }}</td>
+                            <td>{{ recipe[1] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br><br>
+
+
+           {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div>
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+    </main>
+</body>
+</html>

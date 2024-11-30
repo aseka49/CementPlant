@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Хоз.товары</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <main>
+        <h1>Страница хоз.товаров</h1>
+
+        <!-- Добавить хоз.товары -->
+        <section>
+            <h2>Добавить хоз.товары</h2>
+            <form action="{{ url_for('add_item') }}" method="POST" class="form">
+                <label for="item_name">Выберите хоз.товар:</label>
+                <select name="item_name" required>
+                    <option value="" selected disabled>Выберите</option>
+                    {% for item in items %}
+                        <option value="{{ item[0] }}">{{ item[0] }}</option>
+                    {% endfor %}
+                </select>
+                <label for="quantity">Количество:</label>
+                <input type="number" name="quantity" step="0.001" required>
+                <label for="reason">Причина:</label>
+                <input type="text" name="reason" required>
+                <button type="submit" class="button">Добавить</button>
+            </form>
+        </section>
+
+        <!-- Списать хоз.товары -->
+        <section>
+            <h2>Списать хоз.товары</h2>
+            <form action="{{ url_for('remove_item') }}" method="POST" class="form">
+                <label for="item_name">Выберите хоз.товар:</label>
+                <select name="item_name" required>
+                    <option value="" selected disabled>Выберите</option>
+                    {% for item in items %}
+                        <option value="{{ item[0] }}">{{ item[0] }}</option>
+                    {% endfor %}
+                </select>
+                <label for="quantity">Количество:</label>
+                <input type="number" name="quantity" step="0.001" required>
+                <label for="reason">Причина:</label>
+                <input type="text" name="reason" required>
+                <button type="submit" class="button">Списать</button>
+            </form>
+        </section>
+
+        <!-- Добавить новый хоз.товар -->
+        <section>
+            <h2>Добавить новый хоз.товар</h2>
+            <form action="{{ url_for('new_item_route') }}" method="POST" class="form">
+                <label for="name">Название:</label>
+                <input type="text" name="name" required>
+                <label for="unit">Единица измерения:</label>
+                <input type="text" name="unit" required>
+                <label for="stock_amount">Начальное количество:</label>
+                <input type="number" name="stock_amount" required>
+                <button type="submit" class="button">Добавить</button>
+            </form>
+        </section>
+
+                        <!-- Удалить хоз.товар -->
+        <section>
+            <h2>Удалить хоз.товар</h2>
+            <form action="{{ url_for('delete_item_route') }}" method="POST" class="form">
+                <label for="item_name">Выберите хоз.товар:</label>
+                <select name="item_name" required>
+                    <option value="" selected disabled>Выберите</option>
+                    {% for item in items %}
+                        <option value="{{ item[0] }}">{{ item[0] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="button">Удалить</button>
+            </form>
+        </section>
+
+
+
+        <!-- Список хоз.товаров -->
+        <div class="table-container">
+
+            <h2>Список всех хоз.товаров</h2>
+            <div class="button-group">
+                <button class="button" onclick="toggleTable()">Открыть/Закрыть таблицу</button>
+                <button class="button" onclick="refreshPage()">Обновить</button>
+            </div>
+
+            <div id="itemsTable" style="display: none;">
+                <table>
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Ед. измерения</th>
+                        <th>Количество</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+        <br><br><br>
+
+            <!-- Flash-сообщения -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <div>
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+    </main>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

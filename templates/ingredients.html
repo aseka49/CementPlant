@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Управление складом</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <main>
+        <h1>Страница ингредиентов</h1>
+
+        <!-- Форма добавления на склад и списания со склада -->
+        <section>
+            <h2>Добавить на склад</h2>
+            <form action="{{ url_for('add_stock') }}" method="POST">
+
+                <label for="ingredient_name">Название ингредиента:</label>
+                <select name="ingredient_name_add" id="ingredient_name_add" required>
+                    <option value="" selected disabled>Выберите ингредиент</option>
+                    {% for ingredient in ingredients %}
+                        <option value="{{ ingredient[0] }}">{{ ingredient[0] }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="quantity">Количество (кг):</label>
+                <input type="number" id="quantity" name="quantity" step="0.001" required>
+
+                <label for="reason">Причина:</label>
+                <input type="text" id="reason" name="reason" required>
+
+                <button type="submit" class="button">Добавить</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Списать со склада</h2>
+            <form action="{{ url_for('remove_stock') }}" method="POST">
+
+                <label for="ingredient_name">Выберите ингредиент:</label>
+                <select name="ingredient_name_remove" id="ingredient_name_remove" required>
+                    <option value="" selected disabled>Выберите ингредиент</option>
+                    {% for ingredient in ingredients %}
+                        <option value="{{ ingredient[0] }}">{{ ingredient[0] }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="quantity">Количество (кг):</label>
+                <input type="number" id="quantity" name="quantity" step="0.001" required>
+
+                <label for="reason">Причина:</label>
+                <input type="text" id="reason" name="reason" required>
+
+                <button type="submit" class="button">Списать</button>
+            </form>
+        </section>
+
+        <!-- Форма добавления нового ингредиента и удаления ингредиента -->
+        <section>
+                <h2>Добавить новый ингредиент</h2>
+                <form action="{{ url_for('new_ingredient_route') }}" method="POST">
+
+                    <label for="ingredient_name">Название:</label>
+                    <input type="text" id="ingredient_name_new" name="ingredient_name_new" required>
+
+                    <label for="unit">Единица измерения:</label>
+                    <input type="text" id="unit" name="unit" required>
+
+                    <label for="stock_amount">Начальное количество (кг):</label>
+                    <input type="number" id="stock_amount" name="stock_amount" required>
+
+                    <button type="submit" class="button">Добавить</button>
+                </form>
+        </section>
+
+        <section>
+            <h2>Удалить ингредиент</h2>
+            <form action="{{ url_for('delete_ingredient_route') }}" method="POST">
+
+                <label for="ingredient_name">Выберите ингредиент:</label>
+                <select name="ingredient_name" id="ingredient_name" required>
+                    <option value="" selected disabled>Выберите ингредиент</option>
+                    {% for ingredient in ingredients %}
+                        <option value="{{ ingredient[0] }}">{{ ingredient[0] }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="button">Удалить</button>
+            </form>
+        </section>
+
+<div class="table-container">
+    <form method="POST">
+        <div class="button-group">
+            <button type="button" class="button" onclick="toggleTable()">Показать/Скрыть ингредиенты</button>
+            <button type="submit" class="button">Обновить</button>
+        </div>
+
+        <!-- Поле для выбора сортировки -->
+        <div class="sort-container">
+            <label for="sort">Сортировка по:</label>
+            <select id="sort" name="sort">
+                <option value="alphabet" {% if current_sort =='alphabet' %}selected{% endif %}>По алфавиту</option>
+                <option value="stock" {% if current_sort =='stock' %}selected{% endif %}>По количеству (нарастающему)</option>
+            </select>
+        </div>
+    </form>
+
+    <!-- Таблица ингредиентов -->
+    <div id="ingredientsTable" style="display: none;">
+        <h2>Ингредиенты</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Ед. измерения</th>
+                    <th>Кол-во на складе</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ingredient in ingredients %}
+                <tr>
+                    <td>{{ ingredient[0] }}</td>
+                    <td>{{ ingredient[1] }}</td>
+                    <td>{{ ingredient[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <script>
+        function toggleTable() {
+        const table = document.getElementById('ingredientsTable');
+        table.style.display = table.style.display === 'none' ? 'block' : 'none';
+    }
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <div>
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+        </main>
+</body>
+</html>

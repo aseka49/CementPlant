@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Управление складом</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Управление складом</h1>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Склад ингредиентов</h2>
+                <a href="ingredients" class="button">
+                    <i class="icon-warehouse"></i> Перейти к складу
+                </a>
+            </div>
+
+            <div class="card">
+                <h2>Склад хоз. товаров</h2>
+                <a href="household_items" class="button">
+                    <i class="icon-cleaning"></i> Перейти к складу
+                </a>
+            </div>
+
+            <div class="card">
+                <h2>Рецепты</h2>
+                <a href="manage_recipes" class="button">
+                    <i class="icon-recipe"></i> Управление рецептами
+                </a>
+            </div>
+
+            <div class="card">
+                <h2>Калькуляция</h2>
+                <a href="calculate_ingredients" class="button">
+                    <i class="icon-calculator"></i> Рассчитать ингредиенты
+                </a>
+            </div>
+
+            <div class="card">
+                <h2>Транзакции</h2>
+                <a href="transactions" class="button">
+                    <i class="icon-transactions"></i> История транзакций
+                </a>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Система управления складом</p>
+            <p>PS: Мама это все для тебя</p>
+        </footer>
+    </div>
+</body>
+</html>

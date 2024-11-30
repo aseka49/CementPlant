@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Результаты расчета</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <main>
+    <h1>Результаты расчета ингредиентов</h1>
+    {% if total_ingredients %}
+        <table border="1">
+            <tr>
+                <th>Ингредиент</th>
+                <th>Количество (кг)</th>
+            </tr>
+            {% for ingredient, data in total_ingredients.items() %}
+            <tr>
+                <td>{{ ingredient }}</td>
+                <td>{{ data['quantity'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <form action="/download_results" method="post">
+            <button type="submit" class="button-accept">Скачать отчет</button>
+        </form>
+    {% else %}
+        <p>Нет данных для отображения.</p>
+    {% endif %}
+    </main>
+</body>
+</html>
